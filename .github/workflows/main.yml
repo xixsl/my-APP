@@ -1,0 +1,60 @@
+name: Build XiaoMi APK v2
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      # 1. 拉取代码
+      - name: 1. 拉取代码
+        uses: actions/checkout@v4
+
+      # 2. 安装 Node.js（Cordova 基于 Node）
+      - name: 2. 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      # 3. 安装 Java JDK 17（Cordova + Android 编译需要）
+      - name: 3. 安装 Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # 4. 安装 Android SDK
+      - name: 4. 安装 Android SDK
+        uses: android-actions/setup-android@v2
+        with:
+          packages: 'platform-tools build-tools;34.0.0 platforms;android-34'
+
+      # 5. 全局安装 Cordova
+      - name: 5. 安装 Cordova
+        run: npm install -g cordova
+
+      # 6. 添加 Android 平台（首次会下载 ~200MB，耗时较长）
+      - name: 6. 添加 Android 平台
+        run: cordova platform add android
+
+      # 7. 构建 Debug APK
+      - name: 7. 构建 APK
+        run: cordova build android --debug
+
+      # 8. 列出生成的 APK 文件（调试用）
+      - name: 8. 列出 APK
+        run: find platforms/android -name "*.apk" -type f
+
+      # 9. 上传 APK 作为 artifact
+      - name: 9. 上传 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: XiaoMi-APK-v2
+          path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 30
