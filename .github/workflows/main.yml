@@ -30,9 +30,9 @@ jobs:
 
       # 4. 安装 Android SDK
       - name: 4. 安装 Android SDK
-        uses: android-actions/setup-android@v2
+        uses: android-actions/setup-android@v3
         with:
-          packages: 'platform-tools build-tools;34.0.0 platforms;android-34'
+          components: 'platform-tools,build-tools;34.0.0,platforms;android-34'
 
       # 5. 全局安装 Cordova
       - name: 5. 安装 Cordova
